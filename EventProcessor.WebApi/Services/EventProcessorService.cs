@@ -61,7 +61,7 @@ namespace EventProcessor.WebApi.Services
             try
             {
                 if (_pendingEventType2 != null
-                    && currentEvent.Time.Add(_compositeTemplateTimeLimit) >= _pendingEventType2.Time
+                    && currentEvent.Time - _pendingEventType2.Time <= _compositeTemplateTimeLimit
                     && currentEvent.Type == EventTypeEnum.Type1)
                 {
                     var incidentId = await CreateIncidentAsync(_pendingEventType2, cancellationToken);

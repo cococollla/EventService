@@ -30,7 +30,7 @@ namespace EventGenerator.WebApi.Services
             var newEvent = new Event
             {
                 Id = Guid.NewGuid(),
-                Type = (EventTypeEnum)_random.Next(1, 3),
+                Type = (EventTypeEnum)_random.Next(1, 5),
                 Time = DateTime.UtcNow
             };
             _logger.LogInformation($"Создано событие {newEvent.Id} в {newEvent.Time}");

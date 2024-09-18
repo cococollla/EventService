@@ -1,3 +1,4 @@
+using EventGenerator.WebApi.HostedServices;
 using EventGenerator.WebApi.HttpClients;
 using EventGenerator.WebApi.Services;
 
@@ -9,7 +10,7 @@ builder.Services.AddHttpClient<IEventProcessorClient, EventProcessorClient>(clie
 });
 
 builder.Services.AddScoped<IEventGeneratorService, EventGeneratorService>();
-//builder.Services.AddHostedService<EventGeneratorBackgroundService>();
+builder.Services.AddHostedService<EventGeneratorBackgroundService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

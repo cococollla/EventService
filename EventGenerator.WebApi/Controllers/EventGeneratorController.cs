@@ -25,12 +25,14 @@ namespace EventGenerator.WebApi.Controllers
         /// </summary>
         /// <param name="cancellationToken">Токен отмены.</param>
         /// <returns>Задача, представляющая асинхронную операцию.</returns>
-        [HttpPost("generate")]
-        public async Task<IActionResult> GenerateEventAsync(CancellationToken cancellationToken)
+        [HttpPost("GenerateRandomEvent")]
+        public async Task<IActionResult> GenerateEventAsync()
         {
             try
             {
+                var cancellationToken = new CancellationToken();
                 await _eventGeneratorService.GenerateAndSendEventAsync(cancellationToken);
+
                 return Ok("Событие создано и успешно отправлено.");
             }
             catch (Exception ex)
@@ -40,12 +42,11 @@ namespace EventGenerator.WebApi.Controllers
         }
 
         /// <summary>
-        /// Вручную генерирует событие и отправляет его в процессор событий EventProcessor.
+        /// Вручную генерирует событие типа 1.
         /// </summary>
-        /// <param name="cancellationToken">Токен отмены.</param>
         /// <returns>Задача, представляющая асинхронную операцию.</returns>
-        [HttpPost("generate1")]
-        public async Task<IActionResult> GenerateEvent1Async(CancellationToken cancellationToken)
+        [HttpPost("GenerateEventType1")]
+        public async Task<IActionResult> GenerateEvent1Async()
         {
             try
             {
@@ -65,12 +66,11 @@ namespace EventGenerator.WebApi.Controllers
         }
 
         /// <summary>
-        /// Вручную генерирует событие и отправляет его в процессор событий EventProcessor.
+        /// Вручную генерирует событие типа 2.
         /// </summary>
-        /// <param name="cancellationToken">Токен отмены.</param>
         /// <returns>Задача, представляющая асинхронную операцию.</returns>
-        [HttpPost("generate2")]
-        public async Task<IActionResult> GenerateEvent2Async(CancellationToken cancellationToken)
+        [HttpPost("GenerateEventType2")]
+        public async Task<IActionResult> GenerateEvent2Async()
         {
             try
             {
