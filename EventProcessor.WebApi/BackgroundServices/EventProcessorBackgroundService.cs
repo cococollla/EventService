@@ -1,5 +1,4 @@
 ﻿using EventProcessor.WebApi.Data.Models;
-using EventProcessor.WebApi.Services;
 using EventProcessor.WebApi.Services.Contracts;
 using System.Threading.Channels;
 

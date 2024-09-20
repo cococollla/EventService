@@ -1,7 +1,5 @@
-﻿using EventProcessor.WebApi.Services;
-using EventProcessor.WebApi.Services.Contracts;
+﻿using EventProcessor.WebApi.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Shared.Enums;
 using Shared.Models;
 using System.Threading.Channels;
