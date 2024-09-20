@@ -1,4 +1,4 @@
-﻿using EventGenerator.WebApi.Services;
+﻿using EventGenerator.WebApi.Services.Contracts;
 
 namespace EventGenerator.WebApi.HostedServices
 {
@@ -14,7 +14,7 @@ namespace EventGenerator.WebApi.HostedServices
         /// <summary>
         /// Конструктор.
         /// </summary>
-        /// <param name="eventGeneratorService">Сервис для генерации и отправки событий.</param>
+        /// <param name="serviceScopeFactory">Сервис для создания скоупа.</param>
         /// <param name="logger">Логгер.</param>
         public EventGeneratorBackgroundService(IServiceScopeFactory serviceScopeFactory, ILogger<EventGeneratorBackgroundService> logger)
         {
@@ -22,18 +22,26 @@ namespace EventGenerator.WebApi.HostedServices
             _logger = logger;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                using (var scope = _serviceScopeFactory.CreateScope())
+                try
                 {
-                    var eventGeneratorService = scope.ServiceProvider.GetRequiredService<IEventGeneratorService>();
+                    using (var scope = _serviceScopeFactory.CreateScope())
+                    {
+                        var eventGeneratorService = scope.ServiceProvider.GetRequiredService<IEventGeneratorService>();
 
-                    await eventGeneratorService.GenerateAndSendEventAsync(stoppingToken);
+                        var newEvent = await eventGeneratorService.GenerateEventAsync(cancellationToken);
+                        await eventGeneratorService.SendEventToProcessorAsync(newEvent, cancellationToken);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Ошибка при отправке события");
                 }
 
-                await Task.Delay(_random.Next(0, 2000), stoppingToken);
+                await Task.Delay(_random.Next(0, 2000), cancellationToken);
             }
         }
     }

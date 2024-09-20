@@ -1,11 +1,12 @@
-﻿using EventGenerator.WebApi.HttpClients;
+﻿using EventGenerator.WebApi.HttpClients.Contacts;
+using EventGenerator.WebApi.Services.Contracts;
 using Shared.Enums;
 using Shared.Models;
 
-namespace EventGenerator.WebApi.Services
+namespace EventGenerator.WebApi.Services.Implementations
 {
     /// <summary>
-    /// Предоставляет функциональность для генерации событий и отправки их в EventProces.
+    /// Предоставляет функциональность для генерации событий и отправки их в EventProcessor.
     /// </summary>
     public class EventGeneratorService : IEventGeneratorService
     {
@@ -25,7 +26,7 @@ namespace EventGenerator.WebApi.Services
         }
 
         /// <inheritdoc/>
-        public async Task GenerateAndSendEventAsync(CancellationToken cancellationToken)
+        public async Task<Event> GenerateEventAsync(CancellationToken cancellationToken)
         {
             var newEvent = new Event
             {
@@ -35,20 +36,15 @@ namespace EventGenerator.WebApi.Services
             };
             _logger.LogInformation($"Создано событие {newEvent.Id} в {newEvent.Time}");
 
-            await SendEventToProcessor(newEvent, cancellationToken);
+            return newEvent;
         }
 
-        /// <summary>
-        /// Отправляет событие.
-        /// </summary>
-        /// <param name="newEvent"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        private async Task SendEventToProcessor(Event newEvent, CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        public async Task SendEventToProcessorAsync(Event newEvent, CancellationToken cancellationToken)
         {
             try
             {
-                await _eventProcessorClient.SendEventAsync(newEvent);
+                await _eventProcessorClient.SendEventAsync(newEvent, cancellationToken);
                 _logger.LogInformation($"Успешная отправка события {newEvent.Id}");
             }
             catch (HttpRequestException ex)

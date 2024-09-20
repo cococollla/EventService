@@ -1,6 +1,7 @@
-﻿using Shared.Models;
+﻿using EventGenerator.WebApi.HttpClients.Contacts;
+using Shared.Models;
 
-namespace EventGenerator.WebApi.HttpClients
+namespace EventGenerator.WebApi.HttpClients.Implementations
 {
     /// <summary>
     /// Предоставляет функциональность для отправки событий в EventProcessor.
@@ -19,9 +20,9 @@ namespace EventGenerator.WebApi.HttpClients
         }
 
         /// <inheritdoc/>
-        public async Task SendEventAsync(Event newEvent)
+        public async Task SendEventAsync(Event newEvent, CancellationToken cancellationToken)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/EventProcessor/AutoReceive", newEvent);
+            var response = await _httpClient.PostAsJsonAsync("api/EventProcessor/AutoReceive", newEvent, cancellationToken);
             response.EnsureSuccessStatusCode();
         }
     }

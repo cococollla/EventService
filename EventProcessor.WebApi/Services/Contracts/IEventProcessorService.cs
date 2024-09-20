@@ -1,6 +1,6 @@
-﻿using EventProcessor.WebApi.Models;
+﻿using EventProcessor.WebApi.Data.Models;
 
-namespace EventProcessor.WebApi.Services
+namespace EventProcessor.WebApi.Services.Contracts
 {
     /// <summary>
     /// Определяет методы для обработки событий и создания инцидентов.

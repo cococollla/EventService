@@ -1,10 +1,11 @@
 ﻿using EventProcessor.WebApi.Data;
+using EventProcessor.WebApi.Data.Models;
 using EventProcessor.WebApi.Enums;
-using EventProcessor.WebApi.Models;
+using EventProcessor.WebApi.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Shared.Enums;
 
-namespace EventProcessor.WebApi.Services
+namespace EventProcessor.WebApi.Services.Implementations
 {
     /// <summary>
     /// Предоставляет функциональность для обработки событий и создания инцидентов.
@@ -43,14 +44,12 @@ namespace EventProcessor.WebApi.Services
         {
             var query = _dbContext.Incidents.AsQueryable();
 
-            // Применяем сортировку.
             query = sortOrder switch
             {
                 "desc" => query.OrderByDescending(i => i.Time),
                 _ => query.OrderBy(i => i.Time),
             };
 
-            // Применяем пагинацию.
             query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
             return await query.Include(i => i.Events).ToListAsync(cancellationToken);
@@ -64,15 +63,19 @@ namespace EventProcessor.WebApi.Services
                     && currentEvent.Time - _pendingEventType2.Time <= _compositeTemplateTimeLimit
                     && currentEvent.Type == EventTypeEnum.Type1)
                 {
-                    var incidentId = await CreateIncidentAsync(_pendingEventType2, cancellationToken);
+                    var incidentId = await CreateIncidentAsync(IncidentTypeEnum.Type2, cancellationToken);
 
-                    _logger.LogInformation($"Создан составной инцидент {incidentId} для события {currentEvent.Id}");
+                    var eventCompositeId = await CreateEventAsync(_pendingEventType2, incidentId, cancellationToken);
+                    var eventSimpleId = await CreateEventAsync(currentEvent, incidentId, cancellationToken);
+
+                    _logger.LogInformation($"Создан составной инцидент {incidentId} с событиями {eventSimpleId} и {eventCompositeId}");
                 }
                 else if (currentEvent != null && currentEvent.Type == EventTypeEnum.Type1)
                 {
-                    var incidentId = await CreateIncidentAsync(currentEvent, cancellationToken);
+                    var incidentId = await CreateIncidentAsync(IncidentTypeEnum.Type1, cancellationToken);
+                    var eventSimpleId = await CreateEventAsync(currentEvent, incidentId, cancellationToken);
 
-                    _logger.LogInformation($"Создан простой инцидент {incidentId} для события {currentEvent.Id}");
+                    _logger.LogInformation($"Создан простой инцидент {incidentId} для события {eventSimpleId}");
                 }
             }
             catch (Exception ex)
@@ -81,22 +84,29 @@ namespace EventProcessor.WebApi.Services
             }
         }
 
-        private async Task<Guid> CreateIncidentAsync(Event newEvent, CancellationToken cancellationToken)
+        private async Task<Guid> CreateIncidentAsync(IncidentTypeEnum type, CancellationToken cancellationToken)
         {
             var incident = new Incident
             {
                 Id = Guid.NewGuid(),
-                Type = newEvent.Type == EventTypeEnum.Type1 ? IncidentTypeEnum.Type1 : IncidentTypeEnum.Type2,
+                Type = type,
                 Time = DateTime.UtcNow
             };
 
             _dbContext.Incidents.Add(incident);
-            newEvent.IncidentId = incident.Id;
-            _dbContext.Events.Add(newEvent);
-
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return incident.Id;
+        }
+
+        private async Task<Guid> CreateEventAsync(Event newEvent, Guid incidentId, CancellationToken cancellationToken)
+        {
+            newEvent.IncidentId = incidentId;
+
+            _dbContext.Events.Add(newEvent);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return newEvent.Id;
         }
     }
 }

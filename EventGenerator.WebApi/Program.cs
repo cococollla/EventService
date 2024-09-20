@@ -1,6 +1,8 @@
 using EventGenerator.WebApi.HostedServices;
-using EventGenerator.WebApi.HttpClients;
-using EventGenerator.WebApi.Services;
+using EventGenerator.WebApi.HttpClients.Contacts;
+using EventGenerator.WebApi.HttpClients.Implementations;
+using EventGenerator.WebApi.Services.Contracts;
+using EventGenerator.WebApi.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 

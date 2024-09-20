@@ -1,4 +1,4 @@
-﻿using EventProcessor.WebApi.Models;
+﻿using EventProcessor.WebApi.Data.Models;
 using System.Collections.Concurrent;
 
 namespace EventProcessor.WebApi.Services

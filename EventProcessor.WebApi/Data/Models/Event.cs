@@ -1,6 +1,7 @@
 ﻿using Shared.Enums;
+using System.Text.Json.Serialization;
 
-namespace EventProcessor.WebApi.Models
+namespace EventProcessor.WebApi.Data.Models
 {
     /// <summary>
     /// Представляет событие.
@@ -23,7 +24,10 @@ namespace EventProcessor.WebApi.Models
         public DateTime Time { get; set; }
 
         // Внешний ключ для инцидента.
+        [JsonIgnore]
         public Guid? IncidentId { get; set; }
+
+        [JsonIgnore]
         public Incident Incident { get; set; }
     }
 }
